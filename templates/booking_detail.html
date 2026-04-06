@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Booking #{{ booking.id }}{% endblock %}
+{% block extra_css %}
+<style>
+.page{max-width:700px;margin:40px auto;padding:0 5%}
+.confirm-hero{text-align:center;padding:40px;background:linear-gradient(135deg,#0e2e1a,#0e1a2e);border-radius:20px;margin-bottom:28px}
+.confirm-icon{font-size:56px;margin-bottom:14px}
+.confirm-title{font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff;margin-bottom:6px}
+.confirm-sub{font-size:14px;color:rgba(255,255,255,.55)}
+.booking-id{background:rgba(255,255,255,.1);border-radius:10px;padding:8px 20px;display:inline-block;color:#6ee7b7;font-size:14px;margin-top:12px}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.card h3{font-size:16px;font-weight:500;margin-bottom:18px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.info-item{display:flex;flex-direction:column;gap:4px}
+.info-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.info-value{font-size:15px;font-weight:500}
+.price-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px solid var(--border)}
+.price-row:last-child{font-weight:600;font-size:16px;border-bottom:none;padding-top:12px;margin-top:4px;border-top:2px solid var(--ink)}
+.hotel-earn-row{background:#e6f4ea;border-radius:8px;padding:10px 12px;font-size:13px;color:var(--success);margin-top:12px;display:flex;justify-content:space-between}
+.payout-info{background:#f8f7fc;border-radius:12px;padding:16px;font-size:13px;color:var(--muted);line-height:1.7}
+.payout-info strong{color:var(--success);display:block;font-size:15px;margin-bottom:6px}
+.action-btns{display:flex;gap:12px}
+.btn{flex:1;padding:12px;border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit;text-align:center;border:1.5px solid var(--border);background:#fff;transition:all .2s}
+.btn:hover{border-color:var(--coral);color:var(--coral)}
+.btn.primary{background:var(--coral);color:#fff;border-color:var(--coral)}
+.btn.primary:hover{background:var(--coral-dark)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="confirm-hero">
+    <div class="confirm-icon">🎉</div>
+    <div class="confirm-title">Booking Confirmed!</div>
+    <div class="confirm-sub">{{ booking.hotel.name }} mein aapka swagat hai</div>
+    <div class="booking-id">Booking #{{ booking.id }}</div>
+  </div>
+
+  <div class="card">
+    <h3>🏨 Booking Details</h3>
+    <div class="info-grid">
+      <div class="info-item"><span class="info-label">Hotel</span><span class="info-value">{{ booking.hotel.name }}</span></div>
+      <div class="info-item"><span class="info-label">City</span><span class="info-value">{{ booking.hotel.city }}</span></div>
+      <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">{{ booking.check_in.strftime('%d %B %Y') }}</span></div>
+      <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">{{ booking.check_out.strftime('%d %B %Y') }}</span></div>
+      <div class="info-item"><span class="info-label">Nights</span><span class="info-value">{{ booking.nights }}</span></div>
+      <div class="info-item"><span class="info-label">Guests</span><span class="info-value">{{ booking.guests }}</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>💳 Transparent Price Breakdown</h3>
+    <div class="price-row"><span>Room ({{ booking.nights }} nights)</span><span>₹{{ booking.base_price|int }}</span></div>
+    <div class="price-row"><span>GST</span><span>₹{{ booking.gst_amount|int }}</span></div>
+    <div class="price-row"><span>Total Paid</span><span>₹{{ booking.total_price|int }}</span></div>
+    <div class="hotel-earn-row">
+      <span>🏨 Hotel ko milega (T+1 payment)</span>
+      <strong>₹{{ booking.hotel_payout|int }}</strong>
+    </div>
+
+    {% if payout %}
+    <div class="payout-info" style="margin-top:14px">
+      <strong>⚡ T+1 Payout Scheduled</strong>
+      Hotel ko ₹{{ payout.amount|int }} milega: {{ payout.due_date.strftime('%d %B %Y') }} ko UPI se.<br>
+      Status: <strong style="color:var(--info)">{{ payout.status|title }}</strong>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="action-btns">
+    <a href="/my-bookings" class="btn">← Meri Bookings</a>
+    <a href="/support" class="btn">Help Chahiye?</a>
+    {% if booking.status == 'confirmed' and booking.check_in > today %}
+    <a href="/cancel/{{ booking.id }}" class="btn">Cancel</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

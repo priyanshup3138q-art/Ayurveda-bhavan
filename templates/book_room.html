@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Book — {{ hotel.name }}{% endblock %}
+{% block extra_css %}
+<style>
+.page{max-width:960px;margin:40px auto;padding:0 5%;display:grid;
+      grid-template-columns:1fr 380px;gap:32px;align-items:start}
+.form-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:30px}
+.form-card h2{font-family:'Cormorant Garamond',serif;font-size:24px;margin-bottom:24px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--muted);
+             text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:10px;font-size:14px;
+  color:var(--ink);font-family:inherit;outline:none;transition:border .2s}
+.field input:focus,.field select:focus{border-color:var(--coral)}
+.submit-btn{width:100%;background:var(--coral);color:#fff;border:none;
+            padding:14px;border-radius:12px;font-size:16px;font-weight:500;
+            cursor:pointer;font-family:inherit;margin-top:8px}
+.submit-btn:hover{background:var(--coral-dark)}
+
+/* PRICING CARD — the star feature ✅ */
+.price-card{background:#fff;border:1px solid var(--border);border-radius:18px;
+            padding:24px;position:sticky;top:80px}
+.price-card h3{font-size:16px;font-weight:500;margin-bottom:20px;
+               display:flex;align-items:center;gap:8px}
+.price-hotel-name{font-size:14px;color:var(--muted);margin-bottom:16px;
+                  padding-bottom:16px;border-bottom:1px solid var(--border)}
+.price-row{display:flex;justify-content:space-between;align-items:center;
+           font-size:14px;padding:8px 0}
+.price-row.subtotal{border-top:1px solid var(--border);margin-top:8px;padding-top:12px}
+.price-row.gst{color:var(--muted);font-size:13px}
+.price-row.total{border-top:2px solid var(--ink);margin-top:8px;padding-top:12px;
+                 font-size:17px;font-weight:600}
+.price-row.hotel-earn{background:#e6f4ea;border-radius:8px;padding:10px 12px;
+                       margin-top:12px;font-size:13px;color:var(--success)}
+.price-row.platform-fee{font-size:12px;color:var(--muted)}
+.transparent-note{background:#fff5f2;border-radius:10px;padding:12px;
+                  font-size:12px;color:var(--coral);margin-top:14px;line-height:1.6;
+                  border:1px solid #f5c4b3}
+.hotel-mini{display:flex;gap:12px;align-items:center;margin-bottom:20px;
+            padding-bottom:20px;border-bottom:1px solid var(--border)}
+.hotel-mini-emoji{font-size:36px;width:54px;height:54px;background:#f5f3f0;
+                  border-radius:10px;display:flex;align-items:center;justify-content:center}
+.hotel-mini-name{font-weight:500;font-size:15px}
+.hotel-mini-loc{font-size:12px;color:var(--muted);margin-top:2px}
+.policy-box{background:#f8f7fc;border-radius:10px;padding:14px;margin-top:16px;font-size:13px}
+.policy-box h4{font-size:12px;font-weight:500;color:var(--muted);
+               text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.policy-item{display:flex;gap:6px;margin-bottom:5px;color:var(--ink)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="form-card">
+    <h2>Booking Complete Karein</h2>
+    <form method="POST" id="bookingForm">
+      <div class="field">
+        <label>Check-in Date</label>
+        <input type="date" name="check_in" id="checkin"
+               value="{{ check_in }}" required min="{{ today }}"/>
+      </div>
+      <div class="field">
+        <label>Check-out Date</label>
+        <input type="date" name="check_out" id="checkout"
+               value="{{ check_out }}" required/>
+      </div>
+      <div class="field">
+        <label>Guests</label>
+        <select name="guests">
+          {% for i in range(1, room.capacity+1) %}
+          <option value="{{ i }}" {% if i==2 %}selected{% endif %}>{{ i }} Guest{{ 's' if i>1 }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label>Special Request (Optional)</label>
+        <textarea name="special_request" rows="3"
+                  placeholder="Floor preference, early check-in, etc..."></textarea>
+      </div>
+
+      <div class="transparent-note">
+        💳 <strong>Transparent Pricing:</strong> Jo neeche price card mein dikh raha hai, checkout par exactly wohi pay karoge. Koi hidden fee nahi. GST included hai total mein.
+      </div>
+
+      <button type="submit" class="submit-btn">
+        ✅ Confirm Booking & Pay
+      </button>
+    </form>
+  </div>
+
+  <!-- PRICING BREAKDOWN CARD ✅ -->
+  <div class="price-card">
+    <h3>💳 Price Breakdown</h3>
+    <div class="hotel-mini">
+      <div class="hotel-mini-emoji">
+        {% if hotel.category=='luxury' %}🏰
+        {% elif hotel.category=='resort' %}🌴
+        {% else %}🏨{% endif %}
+      </div>
+      <div>
+        <div class="hotel-mini-name">{{ hotel.name }}</div>
+        <div class="hotel-mini-loc">📍 {{ hotel.city }}, {{ hotel.state }}</div>
+        <div style="font-size:11px;color:var(--success);margin-top:3px">
+          {{ room.room_type|title }} Room · Max {{ room.capacity }} guests
+        </div>
+      </div>
+    </div>
+
+    <div id="pricing-display">
+      {% if pricing %}
+      <div class="price-row">
+        <span>₹{{ room.price_per_night|int }} × {{ pricing.nights }} nights</span>
+        <span>₹{{ pricing.subtotal|int }}</span>
+      </div>
+      <div class="price-row gst">
+        <span>GST ({{ pricing.gst_rate|int }}%)</span>
+        <span>₹{{ pricing.gst_amount|int }}</span>
+      </div>
+      <div class="price-row total">
+        <span>Total</span>
+        <span>₹{{ pricing.total|int }}</span>
+      </div>
+      <div class="price-row platform-fee">
+        <span>Platform fee ({{ hotel.commission_rate }}%)</span>
+        <span>₹{{ pricing.platform_fee|int }}</span>
+      </div>
+      <div class="price-row hotel-earn">
+        <span>🏨 Hotel ko milega (T+1 payment)</span>
+        <span><strong>₹{{ pricing.hotel_payout|int }}</strong></span>
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:24px;color:var(--muted);font-size:14px">
+        Dates select karo — pricing automatically dikhegi
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- CANCELLATION POLICY ✅ -->
+    <div class="policy-box">
+      <h4>Cancellation Policy</h4>
+      {% if hotel.cancellation_policy == 'flexible' %}
+      <div class="policy-item">🟢 1+ days pehle: 100% refund</div>
+      <div class="policy-item">🔴 Same day: No refund</div>
+      {% elif hotel.cancellation_policy == 'moderate' %}
+      <div class="policy-item">🟢 5+ days pehle: 100% refund</div>
+      <div class="policy-item">🟡 2–4 days pehle: 50% refund</div>
+      <div class="policy-item">🔴 Last minute: No refund</div>
+      {% else %}
+      <div class="policy-item">🟢 14+ days pehle: 100% refund</div>
+      <div class="policy-item">🟡 7–13 days pehle: 50% refund</div>
+      <div class="policy-item">🔴 &lt;7 days: No refund</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+const roomId = {{ room.id }};
+const checkinEl  = document.getElementById('checkin');
+const checkoutEl = document.getElementById('checkout');
+
+async function updatePricing() {
+  const ci = checkinEl.value, co = checkoutEl.value;
+  if (!ci || !co) return;
+  try {
+    const r = await fetch(`/api/price-preview?room_id=${roomId}&check_in=${ci}&check_out=${co}`);
+    const d = await r.json();
+    if (d.error) return;
+    document.getElementById('pricing-display').innerHTML = `
+      <div class="price-row"><span>₹{{ room.price_per_night|int }} × ${d.nights} nights</span><span>₹${Math.round(d.subtotal)}</span></div>
+      <div class="price-row gst"><span>GST (${d.gst_rate}%)</span><span>₹${Math.round(d.gst_amount)}</span></div>
+      <div class="price-row total"><span>Total</span><span>₹${Math.round(d.total)}</span></div>
+      <div class="price-row platform-fee"><span>Platform fee ({{ hotel.commission_rate }}%)</span><span>₹${Math.round(d.platform_fee)}</span></div>
+      <div class="price-row hotel-earn"><span>🏨 Hotel ko milega (T+1)</span><span><strong>₹${Math.round(d.hotel_payout)}</strong></span></div>
+    `;
+  } catch(e) {}
+}
+
+checkinEl.addEventListener('change', updatePricing);
+checkoutEl.addEventListener('change', updatePricing);
+
+const today = new Date().toISOString().split('T')[0];
+if (!checkinEl.value) checkinEl.value = today;
+checkinEl.min = today;
+</script>
+{% endblock %}

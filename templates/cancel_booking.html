@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Booking Cancel Karo{% endblock %}
+{% block extra_css %}
+<style>
+.page{max-width:600px;margin:40px auto;padding:0 5%}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;margin-bottom:28px}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.refund-box{border-radius:12px;padding:20px;margin-bottom:20px}
+.refund-full{background:#e6f4ea;border:1px solid #6ee7b7;color:var(--success)}
+.refund-partial{background:#fef3cd;border:1px solid #FAC775;color:var(--warn)}
+.refund-none{background:#fde8e8;border:1px solid #f5c4b3;color:var(--danger)}
+.refund-amount{font-size:32px;font-weight:600;font-family:'Cormorant Garamond',serif}
+.refund-msg{font-size:14px;margin-top:6px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none}
+.cancel-btn{width:100%;background:var(--danger);color:#fff;border:none;padding:13px;border-radius:12px;font-size:15px;cursor:pointer;font-family:inherit}
+.back-btn{width:100%;background:#fff;color:var(--ink);border:1.5px solid var(--border);padding:13px;border-radius:12px;font-size:15px;cursor:pointer;font-family:inherit;margin-top:10px}
+.booking-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px}
+.summary-item{display:flex;flex-direction:column;gap:4px}
+.summary-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-title">Booking Cancel Karo</div>
+
+  <div class="card">
+    <div style="font-weight:500;font-size:16px;margin-bottom:12px">{{ booking.hotel.name }}</div>
+    <div class="booking-summary">
+      <div class="summary-item"><span class="summary-label">Check-in</span><span>{{ booking.check_in.strftime('%d %b %Y') }}</span></div>
+      <div class="summary-item"><span class="summary-label">Check-out</span><span>{{ booking.check_out.strftime('%d %b %Y') }}</span></div>
+      <div class="summary-item"><span class="summary-label">Nights</span><span>{{ booking.nights }}</span></div>
+      <div class="summary-item"><span class="summary-label">Total Paid</span><span>₹{{ booking.total_price|int }}</span></div>
+    </div>
+  </div>
+
+  {% if refund_amount > 0 %}
+  <div class="refund-box {% if refund_amount == booking.base_price %}refund-full{% else %}refund-partial{% endif %}">
+    <div class="refund-amount">₹{{ refund_amount|int }}</div>
+    <div class="refund-msg">{{ refund_msg }}</div>
+  </div>
+  {% else %}
+  <div class="refund-box refund-none">
+    <div class="refund-amount">₹0</div>
+    <div class="refund-msg">{{ refund_msg }} — Hotel ki strict policy ki wajah se</div>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <form method="POST">
+      <div class="field">
+        <label>Cancel karne ki wajah</label>
+        <select name="reason">
+          <option value="change_of_plans">Plans change ho gaye</option>
+          <option value="found_better">Zyada acha option mila</option>
+          <option value="emergency">Emergency aagayi</option>
+          <option value="dates_wrong">Dates galat thi</option>
+          <option value="other">Kuch aur</option>
+        </select>
+      </div>
+      <button type="submit" class="cancel-btn">❌ Confirm Cancel</button>
+    </form>
+    <a href="/my-bookings"><button class="back-btn">← Wapas Jao</button></a>
+  </div>
+</div>
+{% endblock %}

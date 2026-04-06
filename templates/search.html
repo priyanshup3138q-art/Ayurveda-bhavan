@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Hotels Dhundo{% endblock %}
+{% block extra_css %}
+<style>
+.search-page{max-width:1180px;margin:36px auto;padding:0 5%;display:grid;grid-template-columns:240px 1fr;gap:28px}
+.filters-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;height:fit-content;position:sticky;top:80px}
+.filters-card h3{font-size:15px;font-weight:500;margin-bottom:18px}
+.filter-section{margin-bottom:20px}
+.filter-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.filter-option{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px;cursor:pointer}
+.filter-option input{accent-color:var(--coral)}
+.price-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.price-inputs input{width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.apply-btn{width:100%;background:var(--coral);color:#fff;border:none;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:8px}
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.results-title{font-size:18px;font-weight:500}
+.sort-select{padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none}
+.hotels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.hotel-card{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.hotel-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.1)}
+.card-img{height:170px;background:#f5f3f0;display:flex;align-items:center;justify-content:center;font-size:54px;position:relative}
+.card-badges{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:4px}
+.badge{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:500}
+.badge-cat{background:rgba(0,0,0,.6);color:#fff}
+.badge-verified{background:rgba(15,110,86,.9);color:#fff}
+.card-body{padding:14px}
+.card-location{font-size:12px;color:var(--muted);margin-bottom:4px}
+.card-name{font-size:15px;font-weight:500;margin-bottom:6px}
+.card-rating{font-size:12px;color:var(--muted);margin-bottom:12px}
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)}
+.price{font-size:18px;font-weight:600}
+.price small{font-size:11px;font-weight:400;color:var(--muted)}
+.price-note{font-size:10px;color:var(--success)}
+.book-btn{background:var(--ink);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer}
+.book-btn:hover{background:var(--coral)}
+.no-results{grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="search-page">
+  <div class="filters-card">
+    <h3>🔍 Filters</h3>
+    <form action="/search" method="GET">
+      <input type="hidden" name="city" value="{{ city }}"/>
+      <input type="hidden" name="check_in" value="{{ check_in }}"/>
+      <input type="hidden" name="check_out" value="{{ check_out }}"/>
+      <div class="filter-section">
+        <div class="filter-label">Category</div>
+        <label class="filter-option"><input type="radio" name="category" value=""/> Sab</label>
+        <label class="filter-option"><input type="radio" name="category" value="budget" {% if request.args.get('category')=='budget' %}checked{% endif %}/> 💰 Budget</label>
+        <label class="filter-option"><input type="radio" name="category" value="luxury" {% if request.args.get('category')=='luxury' %}checked{% endif %}/> ✨ Luxury</label>
+        <label class="filter-option"><input type="radio" name="category" value="resort" {% if request.args.get('category')=='resort' %}checked{% endif %}/> 🌴 Resort</label>
+        <label class="filter-option"><input type="radio" name="category" value="hostel" {% if request.args.get('category')=='hostel' %}checked{% endif %}/> 🎒 Hostel</label>
+      </div>
+      <div class="filter-section">
+        <div class="filter-label">Price Range / Raat</div>
+        <div class="price-inputs">
+          <input type="number" name="min_price" placeholder="Min ₹" value="{{ request.args.get('min_price','') }}"/>
+          <input type="number" name="max_price" placeholder="Max ₹" value="{{ request.args.get('max_price','') }}"/>
+        </div>
+      </div>
+      <button type="submit" class="apply-btn">Apply Filters</button>
+    </form>
+  </div>
+
+  <div>
+    <div class="results-header">
+      <div class="results-title">
+        {% if city %}{{ city }} mein {% endif %}{{ hotels|length }} Hotels Mile
+      </div>
+      <form action="/search" method="GET" style="display:inline">
+        <input type="hidden" name="city" value="{{ city }}"/>
+        <input type="hidden" name="check_in" value="{{ check_in }}"/>
+        <input type="hidden" name="check_out" value="{{ check_out }}"/>
+        <select name="sort" class="sort-select" onchange="this.form.submit()">
+          <option value="rating" {% if sort=='rating' %}selected{% endif %}>Rating se sort karo</option>
+          <option value="price_asc" {% if sort=='price_asc' %}selected{% endif %}>Price: Kam se zyada</option>
+          <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>Price: Zyada se kam</option>
+        </select>
+      </form>
+    </div>
+
+    <div class="hotels-grid">
+      {% if hotels %}
+        {% for hotel in hotels %}
+        <a href="/hotel/{{ hotel.id }}?check_in={{ check_in }}&check_out={{ check_out }}" class="hotel-card" style="text-decoration:none;color:inherit">
+          <div class="card-img">
+            {% if hotel.category=='luxury' %}🏰{% elif hotel.category=='resort' %}🌴{% elif hotel.category=='hostel' %}🏠{% else %}🏨{% endif %}
+            <div class="card-badges">
+              <span class="badge badge-cat">{{ hotel.category|title }}</span>
+              {% if hotel.is_verified %}<span class="badge badge-verified">✅ Verified</span>{% endif %}
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-location">📍 {{ hotel.city }}, {{ hotel.state }}</div>
+            <div class="card-name">{{ hotel.name }}</div>
+            <div class="card-rating">⭐ {{ hotel.rating }} ({{ hotel.total_reviews }} verified reviews)</div>
+            <div class="card-footer">
+              <div>
+                <div class="price">₹{{ hotel.price_per_night|int }} <small>/raat</small></div>
+                <div class="price-note">+ GST clearly dikhega</div>
+              </div>
+              <button class="book-btn">Book Now</button>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      {% else %}
+        <div class="no-results">
+          <div style="font-size:48px;margin-bottom:16px">🏨</div>
+          <p>Koi hotel nahi mila. Filters change karke try karo.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

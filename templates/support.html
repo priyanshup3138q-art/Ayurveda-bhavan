@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Support{% endblock %}
+{% block extra_css %}
+<style>
+.page{max-width:900px;margin:40px auto;padding:0 5%}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:32px;margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:32px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px}
+.card h3{font-size:16px;font-weight:500;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--muted);
+             text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);
+  border-radius:10px;font-size:14px;color:var(--ink);font-family:inherit;
+  outline:none;transition:border .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--coral)}
+.submit-btn{width:100%;background:var(--coral);color:#fff;border:none;
+            padding:13px;border-radius:12px;font-size:15px;font-weight:500;
+            cursor:pointer;font-family:inherit}
+.promise-box{background:#f0fdf4;border:1px solid #6ee7b7;border-radius:12px;
+             padding:16px;margin-bottom:20px;font-size:13px;color:var(--success);line-height:1.7}
+.promise-box strong{display:block;font-size:15px;margin-bottom:6px}
+.whatsapp-btn{display:flex;align-items:center;justify-content:center;gap:8px;
+              background:#25D366;color:#fff;border:none;width:100%;
+              padding:12px;border-radius:12px;font-size:14px;font-weight:500;
+              cursor:pointer;font-family:inherit;margin-top:10px}
+.ticket-row{padding:14px 0;border-bottom:1px solid var(--border)}
+.ticket-row:last-child{border-bottom:none}
+.ticket-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.ticket-subject{font-weight:500;font-size:14px}
+.ticket-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.status-badge{font-size:10px;padding:3px 10px;border-radius:12px;font-weight:500;white-space:nowrap}
+.status-open{background:#fef3cd;color:var(--warn)}
+.status-in_progress{background:#e8f4fd;color:var(--info)}
+.status-resolved{background:#e6f4ea;color:var(--success)}
+.priority-urgent{color:var(--danger);font-size:11px;font-weight:500}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-title">💬 Support Center</div>
+  <div class="page-sub">Real insaan se help — chatbot nahi. 2 ghante mein reply guaranteed.</div>
+
+  <div class="grid">
+    <!-- NEW TICKET FORM -->
+    <div class="card">
+      <h3>🎫 Naya Ticket Daalo</h3>
+
+      <div class="promise-box">
+        <strong>✅ Hamaara Vaada</strong>
+        • Urgent tickets: 30 minute mein reply<br>
+        • Normal tickets: 2 ghante mein reply<br>
+        • Koi bot nahi — real team member handle karega<br>
+        • Booking-linked tickets ko priority milti hai
+      </div>
+
+      <form method="POST">
+        <div class="field">
+          <label>Linked Booking (optional)</label>
+          <select name="booking_id">
+            <option value="">Koi specific booking nahi</option>
+            {% for b in my_bookings %}
+            <option value="{{ b.id }}">
+              #{{ b.id }} — {{ b.hotel.name }} ({{ b.check_in.strftime('%d %b') }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Subject</label>
+          <input type="text" name="subject" required
+                 placeholder="e.g. Refund nahi aaya, Room problem, etc."/>
+        </div>
+        <div class="field">
+          <label>Apni problem batao</label>
+          <textarea name="message" rows="5" required
+                    placeholder="Jitna detail de sako utna behtar — hum jaldi solve karenge..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">📨 Ticket Submit Karo</button>
+      </form>
+
+      <button class="whatsapp-btn" onclick="alert('WhatsApp: +91-XXXXXXXXXX (coming soon!)')">
+        📱 WhatsApp par bhi contact kar sakte ho
+      </button>
+    </div>
+
+    <!-- MY TICKETS -->
+    <div class="card">
+      <h3>🗂️ Mere Tickets</h3>
+      {% if tickets %}
+        {% for ticket in tickets %}
+        <div class="ticket-row">
+          <div class="ticket-top">
+            <div>
+              <div class="ticket-subject">{{ ticket.subject }}</div>
+              <div class="ticket-meta">
+                #{{ ticket.id }} ·
+                {{ ticket.created_at.strftime('%d %b, %H:%M') }}
+                {% if ticket.priority == 'urgent' %}
+                · <span class="priority-urgent">🔴 Urgent</span>
+                {% endif %}
+                {% if ticket.booking_id %}
+                · Booking #{{ ticket.booking_id }}
+                {% endif %}
+              </div>
+            </div>
+            <span class="status-badge status-{{ ticket.status }}">
+              {% if ticket.status=='open' %}🟡 Open
+              {% elif ticket.status=='in_progress' %}🔵 In Progress
+              {% else %}✅ Resolved{% endif %}
+            </span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);margin-top:6px">
+            {{ ticket.message[:100] }}{% if ticket.message|length > 100 %}...{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:40px;color:var(--muted)">
+          <div style="font-size:40px;margin-bottom:14px">😊</div>
+          <p>Koi ticket nahi! Sab theek chal raha hai?<br>
+             Kuch bhi problem ho toh yahan daalo.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

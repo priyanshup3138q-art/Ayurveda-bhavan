@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Meri Bookings{% endblock %}
+{% block extra_css %}
+<style>
+.page{max-width:900px;margin:40px auto;padding:0 5%}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:32px;margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:32px}
+.booking-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:18px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start}
+.b-hotel{font-weight:500;font-size:16px;margin-bottom:4px}
+.b-room{font-size:13px;color:var(--muted);margin-bottom:10px}
+.b-dates{display:flex;gap:16px;font-size:13px;margin-bottom:10px}
+.b-date-item{display:flex;flex-direction:column;gap:2px}
+.b-date-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:500}
+.b-pricing{background:#f8f7fc;border-radius:10px;padding:12px;font-size:13px}
+.b-pricing-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.b-pricing-row:last-child{font-weight:600;border-top:1px solid var(--border);padding-top:6px;margin-top:4px}
+.b-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.status-pill{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:500;white-space:nowrap}
+.pill-confirmed{background:#e6f4ea;color:var(--success)}
+.pill-cancelled{background:#fde8e8;color:var(--danger)}
+.pill-pending{background:#fef3cd;color:var(--warn)}
+.pill-completed{background:#e8f4fd;color:var(--info)}
+.action-btn{font-size:12px;padding:7px 14px;border-radius:8px;cursor:pointer;border:1.5px solid var(--border);background:#fff;font-family:inherit;transition:all .2s}
+.action-btn:hover{border-color:var(--coral);color:var(--coral)}
+.action-btn.cancel{border-color:#f5c4b3;color:var(--danger)}
+.action-btn.cancel:hover{background:#fde8e8}
+.empty-state{text-align:center;padding:80px;color:var(--muted)}
+.refund-badge{font-size:11px;color:var(--success);background:#e6f4ea;padding:3px 10px;border-radius:10px;margin-top:4px;display:inline-block}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-title">Meri Bookings</div>
+  <div class="page-sub">Aapki saari trips ek jagah</div>
+
+  {% if bookings %}
+    {% for b in bookings %}
+    <div class="booking-card">
+      <div>
+        <div class="b-hotel">{{ b.hotel.name }}</div>
+        <div class="b-room">📍 {{ b.hotel.city }} · {{ b.room.room_type|title }} Room · {{ b.guests }} Guest{% if b.guests>1 %}s{% endif %}</div>
+        <div class="b-dates">
+          <div class="b-date-item">
+            <span class="b-date-label">Check-in</span>
+            <span>{{ b.check_in.strftime('%d %b %Y') }}</span>
+          </div>
+          <div style="color:var(--muted);padding-top:14px">→</div>
+          <div class="b-date-item">
+            <span class="b-date-label">Check-out</span>
+            <span>{{ b.check_out.strftime('%d %b %Y') }}</span>
+          </div>
+          <div class="b-date-item">
+            <span class="b-date-label">Nights</span>
+            <span>{{ b.nights }}</span>
+          </div>
+        </div>
+        <div class="b-pricing">
+          <div class="b-pricing-row"><span>Room ({{ b.nights }} nights)</span><span>₹{{ b.base_price|int }}</span></div>
+          <div class="b-pricing-row"><span>GST</span><span>₹{{ b.gst_amount|int }}</span></div>
+          <div class="b-pricing-row"><span>Total Paid</span><span>₹{{ b.total_price|int }}</span></div>
+        </div>
+        {% if b.status == 'cancelled' and b.refund_amount %}
+        <div class="refund-badge">Refund: ₹{{ b.refund_amount|int }} processing</div>
+        {% endif %}
+      </div>
+      <div class="b-actions">
+        <span class="status-pill pill-{{ b.status }}">
+          {% if b.status=='confirmed' %}✅ Confirmed
+          {% elif b.status=='cancelled' %}❌ Cancelled
+          {% elif b.status=='completed' %}🏁 Completed
+          {% else %}⏳ Pending{% endif %}
+        </span>
+        <a href="/booking/{{ b.id }}"><button class="action-btn">View Details</button></a>
+        {% if b.status == 'confirmed' and b.check_in > today %}
+        <a href="/cancel/{{ b.id }}"><button class="action-btn cancel">Cancel</button></a>
+        {% endif %}
+        {% if b.status == 'completed' %}
+        <a href="/hotel/{{ b.hotel.id }}"><button class="action-btn">Review Likho ⭐</button></a>
+        {% endif %}
+        <a href="/support"><button class="action-btn">Help Chahiye?</button></a>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:56px;margin-bottom:20px">🧳</div>
+    <p style="font-size:18px;font-weight:500;margin-bottom:8px">Koi booking nahi mili</p>
+    <p>Pehli trip plan karo — hazaaron hotels wait kar rahe hain!</p>
+    <a href="/search" style="display:inline-block;margin-top:20px;background:var(--coral);color:#fff;padding:12px 28px;border-radius:30px;font-size:14px">Hotels Dhundo →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

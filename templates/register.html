@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block extra_css %}
+<style>
+.auth-wrap{min-height:80vh;display:flex;align-items:center;justify-content:center;padding:40px 5%}
+.auth-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:40px;width:100%;max-width:460px}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo .logo{font-size:28px}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:26px;text-align:center;margin-bottom:6px}
+.auth-sub{text-align:center;font-size:14px;color:var(--muted);margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border .2s}
+.field input:focus,.field select:focus{border-color:var(--coral)}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.role-opt{border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;text-align:center;transition:all .2s}
+.role-opt:hover,.role-opt.selected{border-color:var(--coral);background:#fff5f2}
+.role-opt input{display:none}
+.role-icon{font-size:28px;margin-bottom:6px}
+.role-name{font-size:14px;font-weight:500}
+.role-desc{font-size:11px;color:var(--muted);margin-top:3px}
+.submit-btn{width:100%;background:var(--coral);color:#fff;border:none;padding:13px;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px}
+.auth-footer{text-align:center;margin-top:20px;font-size:14px;color:var(--muted)}
+.auth-footer a{color:var(--coral)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo"><div class="logo">Ayurveda <span style="color:var(--ink)"<>Bhavan</span></div></div>
+    <div class="auth-title">Account Banao</div>
+    <div class="auth-sub">Free mein join karo — customer ya hotel owner</div>
+    <form method="POST" id="regForm">
+      <div class="field"><label>Poora Naam</label><input type="text" name="name" required placeholder="Aapka naam"/></div>
+      <div class="field"><label>Email</label><input type="email" name="email" required placeholder="aapka@email.com"/></div>
+      <div class="field"><label>Phone</label><input type="tel" name="phone" placeholder="+91 XXXXX XXXXX"/></div>
+      <div class="field"><label>Password</label><input type="password" name="password" required placeholder="Min 6 characters"/></div>
+      <div class="field">
+        <label>Aap kaun hain?</label>
+        <div class="role-grid">
+          <label class="role-opt selected" onclick="selectRole(this,'customer')">
+            <input type="radio" name="role" value="customer" checked/>
+            <div class="role-icon">👤</div>
+            <div class="role-name">Customer</div>
+            <div class="role-desc">Hotels book karna chahta hoon</div>
+          </label>
+          <label class="role-opt" onclick="selectRole(this,'hotel_owner')">
+            <input type="radio" name="role" value="hotel_owner"/>
+            <div class="role-icon">🏨</div>
+            <div class="role-name">Hotel Owner</div>
+            <div class="role-desc">Apna hotel list karna chahta hoon</div>
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="submit-btn">Account Banao →</button>
+    </form>
+    <div class="auth-footer">Pehle se account hai? <a href="/login">Login karo</a></div>
+  </div>
+</div>
+<script>
+function selectRole(el, role) {
+  document.querySelectorAll('.role-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+{% endblock %}

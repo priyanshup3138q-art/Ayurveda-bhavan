@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Naya Hotel Add Karo{% endblock %}
+{% block extra_css %}
+<style>
+.page{max-width:700px;margin:40px auto;padding:0 5%}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:32px;margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:32px}
+.form-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:30px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--ink);font-family:inherit;outline:none;transition:border .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--coral)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.amenity-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.amenity-opt{border:1.5px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;text-align:center;font-size:13px;transition:all .2s}
+.amenity-opt:hover{border-color:var(--coral)}
+.amenity-opt input{display:none}
+.amenity-opt.checked{border-color:var(--coral);background:#fff5f2;color:var(--coral)}
+.commission-box{background:#e6f4ea;border:1px solid #6ee7b7;border-radius:12px;padding:16px;margin-bottom:24px;font-size:14px;color:var(--success)}
+.commission-box strong{display:block;font-size:16px;margin-bottom:6px}
+.submit-btn{width:100%;background:var(--coral);color:#fff;border:none;padding:13px;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-title">Hotel List Karo</div>
+  <div class="page-sub">5 minute mein listed — sirf 10% commission hamesha</div>
+  <div class="form-card">
+    <div class="commission-box">
+      <strong>🎉 Ayurveda Bhavan Commission: Sirf 10%</strong>
+      MMT/Goibibo ke 40% ke muqable mein, aap yahan 80% zyada kamaoge.<br>
+      Aur T+1 payment — check-in ke kal UPI se aapke account mein.
+    </div>
+    <form method="POST">
+      <div class="field"><label>Hotel Ka Naam</label><input type="text" name="name" required placeholder="e.g. The Royal Palace Inn"/></div>
+      <div class="field-row">
+        <div class="field"><label>City</label><input type="text" name="city" required placeholder="e.g. Jaipur"/></div>
+        <div class="field"><label>State</label><input type="text" name="state" required placeholder="e.g. Rajasthan"/></div>
+      </div>
+      <div class="field"><label>Full Address</label><input type="text" name="address" placeholder="Street, Area, Pincode"/></div>
+      <div class="field"><label>Description</label><textarea name="description" rows="3" placeholder="Hotel ke baare mein batao..."></textarea></div>
+      <div class="field-row">
+        <div class="field">
+          <label>Price Per Night (₹)</label>
+          <input type="number" name="price" required placeholder="e.g. 2500" min="100"/>
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select name="category" required>
+            <option value="">Select karo</option>
+            <option value="budget">💰 Budget</option>
+            <option value="luxury">✨ Luxury</option>
+            <option value="resort">🌴 Resort</option>
+            <option value="hostel">🎒 Hostel</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Cancellation Policy</label>
+        <select name="cancellation_policy" required>
+          <option value="flexible">🟢 Flexible — 1+ din pehle free cancel</option>
+          <option value="moderate" selected>🟡 Moderate — 5+ din pehle full refund</option>
+          <option value="strict">🔴 Strict — 14+ din pehle full refund</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Suvidhaen (Amenities)</label>
+        <div class="amenity-grid" id="amenityGrid">
+          {% for a,icon in [('pool','🏊'),('wifi','📶'),('ac','❄️'),('gym','💪'),('spa','💆'),('parking','🅿️'),('restaurant','🍽️'),('beach','🏖️'),('heater','🔥')] %}
+          <label class="amenity-opt" onclick="toggleAmenity(this)">
+            <input type="checkbox" name="amenities" value="{{ a }}"/>
+            {{ icon }} {{ a|title }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      <button type="submit" class="submit-btn">🏨 Hotel List Karo — 10% Commission</button>
+    </form>
+  </div>
+</div>
+<script>
+function toggleAmenity(el) {
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+}
+</script>
+{% endblock %}

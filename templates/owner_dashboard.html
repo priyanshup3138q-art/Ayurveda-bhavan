@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}Owner Dashboard — Ayurveda Bhavan{% endblock %}
+{% block extra_css %}
+<style>
+.dash{max-width:1180px;margin:40px auto;padding:0 5%}
+.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.dash-title{font-family:'Cormorant Garamond',serif;font-size:32px}
+.dash-sub{font-size:14px;color:var(--muted);margin-top:4px}
+.add-btn{background:var(--coral);color:#fff;border:none;padding:10px 22px;border-radius:30px;font-size:14px;cursor:pointer;font-family:inherit}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.metric{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px}
+.metric-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.metric-value{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600}
+.metric-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.metric.green .metric-value{color:#0F6E56}
+.metric.coral .metric-value{color:var(--coral)}
+.commission-box{background:linear-gradient(135deg,#0e1a2e,#0e2e1a);border-radius:16px;padding:24px;margin-bottom:28px;display:flex;align-items:center;gap:24px}
+.comm-text h3{font-family:'Cormorant Garamond',serif;font-size:22px;color:#fff;margin-bottom:6px}
+.comm-text p{font-size:13px;color:rgba(255,255,255,.5);line-height:1.6}
+.comm-compare{display:flex;gap:16px;margin-left:auto;flex-shrink:0}
+.comm-item{text-align:center;background:rgba(255,255,255,.06);border-radius:12px;padding:14px 18px;border:1px solid rgba(255,255,255,.1)}
+.comm-num{font-size:26px;font-weight:600}
+.comm-label{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px}
+.comm-them .comm-num{color:#f59e0b}
+.comm-us .comm-num{color:#6ee7b7}
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px}
+.section-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px}
+.section-card h3{font-size:16px;font-weight:500;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.chart-wrap{position:relative;height:220px}
+.payout-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px}
+.payout-row:last-child{border-bottom:none}
+.payout-date{color:var(--muted);font-size:12px;margin-top:2px}
+.payout-amount{font-weight:600;color:#0F6E56;font-size:16px}
+.status-badge{font-size:10px;padding:3px 10px;border-radius:12px;font-weight:500}
+.status-scheduled{background:#e8f4fd;color:#185FA5}
+.status-paid{background:#e6f4ea;color:#0F6E56}
+.bookings-table{width:100%;border-collapse:collapse;font-size:13px}
+.bookings-table th{text-align:left;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:2px solid var(--border)}
+.bookings-table td{padding:11px 10px;border-bottom:1px solid var(--border)}
+.bookings-table tr:hover td{background:#f8f7fc}
+.status-confirmed{color:#0F6E56;font-weight:500}
+.status-cancelled{color:#A32D2D}
+.hotel-list-item{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--border)}
+.hotel-list-item:last-child{border-bottom:none}
+.hotel-emoji{font-size:28px;width:44px;height:44px;background:#f5f3f0;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.hotel-info{flex:1}
+.hotel-info-name{font-weight:500;font-size:14px}
+.hotel-info-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.btn-sm{font-size:12px;padding:5px 12px;border-radius:8px;cursor:pointer;border:1.5px solid var(--border);background:#fff;font-family:inherit;text-decoration:none;color:inherit}
+.btn-sm:hover{border-color:var(--coral);color:var(--coral)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="dash">
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">🌿 Owner Dashboard</div>
+      <div class="dash-sub">Namaste, {{ session.user_name }}! Aapki hotels aur earnings.</div>
+    </div>
+    <a href="/owner/add-hotel"><button class="add-btn">+ Naya Hotel List Karo</button></a>
+  </div>
+
+  <div class="commission-box">
+    <div class="comm-text">
+      <h3>Sirf 10% Commission — Hamesha</h3>
+      <p>MMT/Goibibo ke 40% ke muqable mein, aap yahan sirf 10% dete hain.<br>
+         Har ₹10,000 ki booking mein ₹3,000 zyada aapke paas rehta hai.</p>
+    </div>
+    <div class="comm-compare">
+      <div class="comm-item comm-them"><div class="comm-num">40%</div><div class="comm-label">MMT / Goibibo</div></div>
+      <div style="display:flex;align-items:center;color:rgba(255,255,255,.3)">vs</div>
+      <div class="comm-item comm-us"><div class="comm-num">10%</div><div class="comm-label">Ayurveda Bhavan ✅</div></div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric green">
+      <div class="metric-label">Is Mahine Revenue</div>
+      <div class="metric-value">₹{{ "{:,.0f}".format(revenue) }}</div>
+      <div class="metric-sub">After 10% commission</div>
+    </div>
+    <div class="metric coral">
+      <div class="metric-label">Total Revenue</div>
+      <div class="metric-value">₹{{ "{:,.0f}".format(total_rev) }}</div>
+      <div class="metric-sub">All time</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Is Mahine Bookings</div>
+      <div class="metric-value">{{ total_bookings }}</div>
+      <div class="metric-sub">Confirmed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Pending Payouts</div>
+      <div class="metric-value">{{ payouts|length }}</div>
+      <div class="metric-sub">T+1 scheduled</div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS CHARTS ✅ -->
+  <div class="charts-row">
+    <div class="section-card" style="margin-bottom:0">
+      <h3>📈 Monthly Revenue</h3>
+      <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+    </div>
+    <div class="section-card" style="margin-bottom:0">
+      <h3>🏨 Hotels by Category</h3>
+      <div class="chart-wrap"><canvas id="catChart"></canvas></div>
+    </div>
+  </div>
+
+  <br>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+    <!-- PAYOUTS -->
+    <div class="section-card">
+      <h3>⚡ Upcoming Payouts (T+1)</h3>
+      {% if payouts %}
+        {% for p in payouts %}
+        <div class="payout-row">
+          <div>
+            <div>Booking #{{ p.booking_id }}</div>
+            <div class="payout-date">Due: {{ p.due_date.strftime('%d %b %Y') }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="status-badge status-{{ p.status }}">{{ p.status|title }}</span>
+            <div class="payout-amount">₹{{ "{:,.0f}".format(p.amount) }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:24px;color:var(--muted);font-size:14px">Koi upcoming payout nahi.</div>
+      {% endif %}
+    </div>
+
+    <!-- MY HOTELS -->
+    <div class="section-card">
+      <h3>🏨 Meri Hotels</h3>
+      {% if hotels %}
+        {% for hotel in hotels %}
+        <div class="hotel-list-item">
+          <div class="hotel-emoji">{% if hotel.category=='luxury' %}🏰{% elif hotel.category=='resort' %}🌴{% else %}🏨{% endif %}</div>
+          <div class="hotel-info">
+            <div class="hotel-info-name">{{ hotel.name }}</div>
+            <div class="hotel-info-sub">📍 {{ hotel.city }} · ₹{{ hotel.price_per_night|int }}/raat · {% if hotel.is_verified %}✅ Verified{% else %}⏳ Pending{% endif %}</div>
+          </div>
+          <a href="/hotel/{{ hotel.id }}" class="btn-sm">View</a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:24px;color:var(--muted)">
+          <a href="/owner/add-hotel" style="color:var(--coral)">Pehla hotel add karo →</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- RECENT BOOKINGS -->
+  <div class="section-card">
+    <h3>📋 Recent Bookings</h3>
+    {% if recent_bookings %}
+    <table class="bookings-table">
+      <thead><tr>
+        <th>#</th><th>Guest</th><th>Hotel</th>
+        <th>Check-in</th><th>Check-out</th>
+        <th>Hotel Revenue</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        {% for b in recent_bookings %}
+        <tr>
+          <td>#{{ b.id }}</td>
+          <td>{{ b.user.name }}</td>
+          <td>{{ b.hotel.name }}</td>
+          <td>{{ b.check_in.strftime('%d %b') }}</td>
+          <td>{{ b.check_out.strftime('%d %b') }}</td>
+          <td style="color:#0F6E56;font-weight:600">₹{{ "{:,.0f}".format(b.hotel_payout or 0) }}</td>
+          <td><span class="status-{{ b.status }}">{{ b.status|title }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:30px;color:var(--muted)">Abhi koi booking nahi aai.</div>
+    {% endif %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Revenue Chart ✅
+const mData = {{ monthly_data|safe }};
+const mLabels = Object.keys(mData);
+const mValues = Object.values(mData);
+new Chart(document.getElementById('revenueChart'), {
+  type: 'bar',
+  data: {
+    labels: mLabels.length ? mLabels : ['No data yet'],
+    datasets: [{
+      label: 'Revenue (₹)',
+      data: mValues.length ? mValues : [0],
+      backgroundColor: 'rgba(15,110,86,0.7)',
+      borderColor: '#0F6E56',
+      borderWidth: 1,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { callback: v => '₹' + v.toLocaleString('en-IN') } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Category Doughnut ✅
+const cData = {{ cat_data|safe }};
+const cLabels = Object.keys(cData);
+const cValues = Object.values(cData);
+new Chart(document.getElementById('catChart'), {
+  type: 'doughnut',
+  data: {
+    labels: cLabels.length ? cLabels.map(l => l.charAt(0).toUpperCase()+l.slice(1)) : ['No hotels'],
+    datasets: [{
+      data: cValues.length ? cValues : [1],
+      backgroundColor: ['#0F6E56','#D85A30','#185FA5','#854F0B','#534AB7'],
+      borderWidth: 2, borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+<!-- ══════ LOGIN ══════ -->
+<!-- templates/login.html -->
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block extra_css %}
+<style>
+.auth-wrap{min-height:80vh;display:flex;align-items:center;justify-content:center;padding:40px 5%}
+.auth-card{background:#fff;border:1px solid var(--border);border-radius:18px;
+           padding:40px;width:100%;max-width:420px}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo .logo{font-size:28px}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:26px;text-align:center;margin-bottom:6px}
+.auth-sub{text-align:center;font-size:14px;color:var(--muted);margin-bottom:28px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--muted);
+             text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.field input{width:100%;padding:12px 14px;border:1.5px solid var(--border);
+             border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border .2s}
+.field input:focus{border-color:var(--coral)}
+.submit-btn{width:100%;background:var(--coral);color:#fff;border:none;
+            padding:13px;border-radius:12px;font-size:15px;font-weight:500;
+            cursor:pointer;font-family:inherit;margin-top:4px}
+.auth-footer{text-align:center;margin-top:20px;font-size:14px;color:var(--muted)}
+.auth-footer a{color:var(--coral)}
+.demo-box{background:#f8f7fc;border-radius:10px;padding:14px;margin-bottom:20px;
+          font-size:13px;color:var(--muted);border:1px dashed var(--border)}
+.demo-box strong{color:var(--ink);display:block;margin-bottom:6px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo"><div class="logo">Ayurveda <span style="color:var(--ink)"<>Bhavan</span></div></div>
+    <div class="auth-title">Wapas Aaye!</div>
+    <div class="auth-sub">Login karke apni bookings dekho</div>
+    <div class="demo-box">
+      <strong>🧪 Demo Accounts</strong>
+      Hotel Owner: owner@demo.com<br>
+      Customer: customer@demo.com<br>
+      Password dono ka: <strong>demo123</strong>
+    </div>
+    <form method="POST">
+      <div class="field"><label>Email</label><input type="email" name="email" required placeholder="aapka@email.com"/></div>
+      <div class="field"><label>Password</label><input type="password" name="password" required placeholder="••••••••"/></div>
+      <button type="submit" class="submit-btn">Login Karein →</button>
+    </form>
+    <div class="auth-footer">Pehli baar? <a href="/register">Account banao</a></div>
+  </div>
+</div>
+{% endblock %}
