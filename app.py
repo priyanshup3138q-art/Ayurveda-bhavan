@@ -657,9 +657,9 @@ def seed():
 with app.app_context():
     db.create_all()
     seed()
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         seed()
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
